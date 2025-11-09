@@ -20,14 +20,9 @@ class UserController extends Controller
     );
     public function __construct()
     {
-        // $this->middleware('auth');
     }
     private function _validate($request, $id = null)
     {
-        $this->validate($request, [
-            'name' => 'required|max:255',
-            'email' => 'required',
-        ]);
     }
 
     public function index(Request $request)
@@ -51,10 +46,7 @@ class UserController extends Controller
                 ->editColumn('created_at', function ($record) {
                     return $record->created_at->format(config('setting.DATE_FORMAT'));
                 })
-                ->addColumn('status', function ($record) {
-                    $class = $record->status == "Active" ? "border-success badge-flat text-success" : "border-danger  text-danger";
-                    return Form::select('status', ['Active' => 'Active', 'Inactive' => 'Inactive'], $record->status, ['data-id' => $record->id, 'class' => "custom-select chk_status p-1  min-width-150 $class"]);
-                })
+            
                 ->addColumn('action', function ($record) {
                     return '<td class="text-center">
                         <div class="d-inline-flex">
@@ -73,7 +65,7 @@ class UserController extends Controller
 						</div>
 					</td>';
                 })
-                ->rawColumns(['status', 'action'])
+                ->rawColumns(['action'])
                 ->make(true);
         }
         return view('admin.user.index', $this->data);
@@ -86,9 +78,6 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-
-        $this->_validate($request);
-        $request['status'] = 'Active';
         $record = new User($request->all());
         $record['image'] = $this->uploadFile($request, null, 'image', 'user_image', true);
         $record['profile_image'] = $this->uploadFile($request, null, 'profile_image', 'profile_image', true);
